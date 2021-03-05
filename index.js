@@ -1,5 +1,4 @@
 const http = require('http'),
-httpProxy = require('http-proxy'),
 express = require('express'),
 cors = require('cors')
 proxy = require('express-http-proxy')
