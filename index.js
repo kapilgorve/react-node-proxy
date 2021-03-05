@@ -1,22 +1,32 @@
-var http = require('http'),
-    httpProxy = require('http-proxy');
+const http = require('http'),
+httpProxy = require('http-proxy'),
+express = require('express'),
+cors = require('cors')
+proxy = require('express-http-proxy')
 
-//
-// Create a proxy server with custom application logic
-//
-var proxy = httpProxy.createProxyServer({});
+app = express();
+app.use(cors());
 
-//
-// Create your custom server and just call `proxy.web()` to proxy
-// a web request to the target passed in the options
-// also you can use `proxy.ws()` to proxy a websockets request
-//
-var server = http.createServer(function(req, res) {
-  // You can define here your custom logic to handle the request
-  // and then proxy the request.
+
+app.set('port', process.env.PORT || 5000);
+
+app.use(express.static(__dirname + '/build'));
+//app.use("/fonts", express.static(__dirname + '/fonts'));
+app.use('/static', express.static(__dirname + '/build/static'));
+
+// views is directory for all template files
+app.set('views', __dirname + '/build');
+app.set('view engine', 'html');
+
+// add your target proxy url
+app.use('/api', proxy('http://34.70.207.212:8080'));
+
+app.get('/*', function(req, res) {
   console.log(req.url);
-  proxy.web(req, res, { target: 'http://34.70.207.212:8080' });
+  res.sendFile(__dirname + '/build/index.html');
 });
 
-console.log("listening on port 5000")
-server.listen(5000);
+
+app.listen(app.get('port'), function() {
+  console.log('Node app is running on port', app.get('port'));
+});
